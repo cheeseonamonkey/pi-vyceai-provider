@@ -16,25 +16,37 @@ pi --model vyceai/deepseek-v4-flash
 
 ## Models
 
-| Model | Context | Cost in/out ($/M) | Notes |
+All 14 models Vyce AI exposes, and exactly what's been verified vs. not — no cherry-picking:
+
+| Model | Context | Cost in/out ($/M) | Tool-call reliability |
 |---|---|---|---|
-| `claude-sonnet-5` | 200K | 3 / 15 | ✅ Reliable tool calls |
-| `nemotron-ultra-550b` | 128K | 1 / 2 | ✅ Reliable tool calls |
-| `claude-haiku-4-5` | 200K | 0.8 / 4 | Presumed reliable |
-| `deepseek-v4-flash` | 128K | 0.09 / 0.18 | ⚠️ Hallucinates tool results |
+| `claude-sonnet-5` | 200K | 3 / 15 | ✅ Tested — calls real tools correctly |
+| `nemotron-ultra-550b` | 128K | 1 / 2 | ✅ Tested — calls real tools correctly |
+| `deepseek-v4-flash` | 128K | 0.09 / 0.18 | ❌ Tested — hallucinates instead of calling tools |
+| `glm-5.2` | 128K | 0.924 / 2.904 | Untested — access denied on our key (plan-gated) |
+| `claude-sonnet-4-6` | 200K | 3 / 15 | Untested (same family as claude-sonnet-5) |
+| `claude-haiku-4-5` | 200K | 0.8 / 4 | Untested (same family) |
+| `claude-fable-5` | 200K | 10 / 30 | Untested — platform-disabled (503) |
+| `gpt-5.6-sol` | 128K | 5 / 30 | Untested — platform-disabled (503) |
+| `nemotron-vision` | 128K | 0.5 / 1.5 | Untested |
 | `gemini-3.1-flash-lite` | 1M | 0.25 / 1.5 | Untested |
-| `auto` | 128K | — | Avoid — unpredictable routing & 429s |
+| `gemini-3.6-flash` | 1M | 1.5 / 7.5 | Untested — rate-limited during testing |
+| `minimax-m3` | 128K | 0.3 / 1.2 | Untested |
+| `mimo-v2.5-pro` | 1M | 1 / 1 | Untested |
+| `auto` | 128K | 10 / 30 (ceiling, not real) | Avoid — unpredictable routing, own 429 limit |
+
+*Pricing is hand-transcribed from Vyce AI's pricing page — the API exposes no pricing endpoint, so nothing here is independently verified against a billing invoice.*
 
 ## Sanity
 
-- **Strips `tools`** for models that break them — the payload is stripped before it's sent, so the model can't silently hallucinate file/tool results instead of admitting it can't call one
+- **No model has ever actually rejected `tools`** (no 400s observed across any tested model) — but that doesn't mean tool calls are reliable. `deepseek-v4-flash` accepts the field and then hallucinates fake file contents instead of calling the real tool. A `noToolsGuard` mechanism exists in the code to strip `tools` from the payload for any model flagged unreliable, but **it's currently a dormant no-op** — nothing is flagged that way today, since stripping tools entirely would make a *sometimes-works* model *never* work. Treat the table above as the actual source of truth, not the guard.
 - **Context overflow auto-retry** — Vyce AI's overflow error text is normalized so Pi recognizes it as recoverable and auto-compacts + retries, instead of leaving you with a dead-end error message
-- **Model-select warnings** — picking a known no-tools or platform-disabled model shows a heads-up in the UI before you burn a request on it
-- **Live model discovery, static fallback** — on startup, fetches the current model list from `/v1/models` (5s timeout, single attempt — this happens on every `pi` invocation, so it can't block or retry). If that fails for any reason, it falls back to the shipped static table with no interruption. Note: this fallback itself is silent — it won't tell you discovery failed, it just quietly uses last-known-good data.
+- **Model-select warnings** — picking a known platform-disabled model shows a heads-up in the UI before you burn a request on it
+- **Live model discovery, static fallback** — on startup, fetches the current model list from `/v1/models` (5s timeout, single attempt — this happens on every `pi` invocation, so it can't block or retry). If that fails for any reason, it falls back to the shipped static table with no interruption. This fallback is silent — it won't tell you discovery failed, it just quietly uses last-known-good data.
 
 Actual request-time errors (rate limits, overflow, bad models) are surfaced normally through Pi's own error display — only the *startup discovery* fallback above is silent.
 
-Full table with context windows, availability, and all models → [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
+More detail on all of the above → [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
 
 ## Development
 

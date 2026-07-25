@@ -1,6 +1,6 @@
 {
   "name": "pi-vyceai-provider",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Pi coding agent model provider extension for Vyce AI",
   "type": "module",
   "license": "MIT",
