@@ -29,6 +29,8 @@ const baseCfg = {
   apiKeyEnv: "VYCEAI_TEST_KEY",
   staticModels,
   overflowPatterns: [],
+  // Hermetic by default: never touch the real auth.json of whoever runs these.
+  readStoredKey: () => undefined,
 };
 
 describe("createProvider", () => {
@@ -49,6 +51,46 @@ describe("createProvider", () => {
     expect(pi.registerProvider).toHaveBeenCalledTimes(1);
     const [, config] = pi.registerProvider.mock.calls[0] as [string, { models: Array<{ id: string }> }];
     expect(config.models.map((m) => m.id)).toEqual(["model-a"]);
+  });
+
+  it("discovers models using the key Pi stored via /login when the env var is unset", async () => {
+    delete process.env.VYCEAI_TEST_KEY;
+    const pi = fakePi();
+    const fetchImpl = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: [{ id: "model-a" }, { id: "model-remote" }] }),
+    })) as unknown as typeof fetch;
+
+    await createProvider(pi as never, {
+      ...baseCfg,
+      fetchImpl,
+      readStoredKey: () => "sk-from-login",
+    });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url, init] = (fetchImpl as jest.Mock).mock.calls[0] as [string, { headers: Record<string, string> }];
+    expect(url).toBe("https://example.invalid/v1/models");
+    expect(init.headers.Authorization).toBe("Bearer sk-from-login");
+    const [, config] = pi.registerProvider.mock.calls[0] as [string, { models: Array<{ id: string }> }];
+    expect(config.models.map((m) => m.id)).toEqual(["model-a", "model-remote"]);
+  });
+
+  it("prefers the env var over the stored credential", async () => {
+    process.env.VYCEAI_TEST_KEY = "sk-from-env";
+    const pi = fakePi();
+    const fetchImpl = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: [{ id: "model-a" }] }),
+    })) as unknown as typeof fetch;
+
+    await createProvider(pi as never, {
+      ...baseCfg,
+      fetchImpl,
+      readStoredKey: () => "sk-from-login",
+    });
+
+    const [, init] = (fetchImpl as jest.Mock).mock.calls[0] as [string, { headers: Record<string, string> }];
+    expect(init.headers.Authorization).toBe("Bearer sk-from-env");
   });
 
   it("falls back to the static table when the fetch fails", async () => {

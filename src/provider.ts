@@ -1,4 +1,4 @@
-import type { ExtensionAPI, ProviderModelConfig } from "@earendil-works/pi-coding-agent";
+import { type ExtensionAPI, type ProviderModelConfig, readStoredCredential } from "@earendil-works/pi-coding-agent";
 import { installModelWarnings } from "./modelWarnings.js";
 import { installNoToolsGuard } from "./noToolsGuard.js";
 import { installOverflowRewriter } from "./overflow.js";
@@ -15,6 +15,8 @@ export interface CreateProviderConfig {
   fetchImpl?: typeof fetch;
   /** Overridable for tests; defaults to 5000ms. */
   fetchTimeoutMs?: number;
+  /** Overridable for tests; defaults to reading Pi's auth.json. */
+  readStoredKey?: (providerId: string) => string | undefined;
 }
 
 /**
@@ -36,7 +38,8 @@ export async function createProvider(pi: ExtensionAPI, cfg: CreateProviderConfig
   // ones who never touch this provider this session. Skip the network call
   // entirely when no key is configured, and never let a fetch failure
   // escape this function - always fall back to the static table.
-  const apiKey = process.env[apiKeyEnv];
+  const readStoredKey = cfg.readStoredKey ?? readStoredApiKey;
+  const apiKey = process.env[apiKeyEnv] ?? readStoredKey(providerId);
   const remoteIds = apiKey
     ? await fetchModelIdsWithTimeout(fetchImpl, baseUrl, apiKey, fetchTimeoutMs).catch(() => [] as string[])
     : [];
@@ -84,6 +87,25 @@ export async function createProvider(pi: ExtensionAPI, cfg: CreateProviderConfig
   installNoToolsGuard(pi, providerId, noToolsModels);
   installOverflowRewriter(pi, providerId, overflowPatterns);
   installModelWarnings(pi, providerId, staticModels);
+}
+
+/**
+ * Read the api key Pi stored via `/login` (auth.json), for users who never set
+ * the env var. Without this, discovery is skipped entirely for them and they
+ * silently get the static table forever - requests still work, since Pi
+ * resolves `apiKey: "$ENV"` itself, so the failure is invisible.
+ *
+ * Sync file read on the startup path: cheap (small JSON), but never allowed to
+ * throw - a corrupt or unreadable auth.json degrades to the static table, same
+ * as a failed fetch.
+ */
+function readStoredApiKey(providerId: string): string | undefined {
+  try {
+    const cred = readStoredCredential(providerId);
+    return cred?.type === "api_key" ? cred.key : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function fetchModelIdsWithTimeout(

@@ -51,7 +51,7 @@ Every model accepts `tools`; the column is whether it uses them well. `nemotron-
 
 - **Overflow auto-retry** — Vyce's overflow errors are normalized so Pi auto-compacts and retries instead of dead-ending
 - **Model-select warnings** — picking a disabled model warns before you spend a request
-- **Live discovery, static fallback** — startup fetches `/v1/models` (5s, one attempt); on failure it silently uses the shipped table
+- **Live discovery, static fallback** — startup fetches `/v1/models` (5s, one attempt) using `VYCEAI_API_KEY` or the key from `/login`; on failure it silently uses the shipped table
 - **`noToolsGuard`** — can strip `tools` per-model, currently a deliberate no-op
 
 Request-time errors surface through Pi normally; only the startup fallback is silent.
