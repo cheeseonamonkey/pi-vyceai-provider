@@ -43,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YOUR_ORG/pi-vyceai-provider.git"
+    "url": "git+https://github.com/cheeseonamonkey/pi-vyceai-provider.git"
   },
   "keywords": [
     "pi",
