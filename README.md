@@ -26,26 +26,26 @@ Then login inside of Pi:
 
 ## Models
 
-Context, max-out, and image support are **inferred** — `/v1/models` returns IDs only. Pricing is transcribed from Vyce's page or an aggregator, never invoice-checked.
+Context and max-out are **inferred** — `/v1/models` returns IDs only. Pricing is transcribed from Vyce's page or an aggregator, never invoice-checked.
 
-| Model | Context | Max out | Input | $/M in→out | Tool use |
-|---|---|---|---|---|---|
-| `claude-sonnet-5` | 200K | 8,192 | text | 3 / 15 | ✅ calls tools correctly |
-| `nemotron-ultra-550b` | 128K | 8,192 | text | 1 / 2 | ✅ calls tools correctly |
-| `deepseek-v4-flash` | 128K | 8,192 | text | 0.09 / 0.18 | ❌ hallucinates instead |
-| `claude-sonnet-4-6` | 200K | 8,192 | text | 3 / 15 | untested |
-| `claude-haiku-4-5` | 200K | 8,192 | text | 0.8 / 4 | untested |
-| `nemotron-vision` | 128K | 4,096 | text, image? | 0.5 / 1.5 | untested |
-| `minimax-m3` | 128K | 4,096 | text, image? | 0.3 / 1.2 | untested |
-| `gemini-3.1-flash-lite` | 1M | 8,192 | text | 0.25 / 1.5 | untested |
-| `gemini-3.6-flash` | 1M | 8,192 | text | 1.5 / 7.5 | untested |
-| `mimo-v2.5-pro` | 1M | 8,192 | text | 1 / 1 | untested |
-| `glm-5.2` | 128K | 8,192 | text | 0.924 / 2.904 | plan-gated |
-| `claude-fable-5` | 200K | 8,192 | text | 10 / 30 | disabled (503) |
-| `gpt-5.6-sol` | 128K | 8,192 | text | 5 / 30 | disabled (503) |
-| `auto` | 128K | 4,096 | text | 10 / 30 (ceiling) | avoid — routing varies |
+| Model | Context | Max out | $/M in→out | Tool use |
+|---|---|---|---|---|
+| `claude-sonnet-5` | 200K | 8,192 | 3 / 15 | ✅ calls tools correctly |
+| `nemotron-ultra-550b` | 128K | 8,192 | 1 / 2 | ✅ calls tools correctly |
+| `deepseek-v4-flash` | 128K | 8,192 | 0.09 / 0.18 | ❌ hallucinates instead |
+| `claude-sonnet-4-6` | 200K | 8,192 | 3 / 15 | untested |
+| `claude-haiku-4-5` | 200K | 8,192 | 0.8 / 4 | untested |
+| `nemotron-vision` | 128K | 4,096 | 0.5 / 1.5 | untested |
+| `minimax-m3` | 128K | 4,096 | 0.3 / 1.2 | untested |
+| `gemini-3.1-flash-lite` | 1M | 8,192 | 0.25 / 1.5 | untested |
+| `gemini-3.6-flash` | 1M | 8,192 | 1.5 / 7.5 | untested |
+| `mimo-v2.5-pro` | 1M | 8,192 | 1 / 1 | untested |
+| `glm-5.2` | 128K | 8,192 | 0.924 / 2.904 | plan-gated |
+| `claude-fable-5` | 200K | 8,192 | 10 / 30 | disabled (503) |
+| `gpt-5.6-sol` | 128K | 8,192 | 5 / 30 | disabled (503) |
+| `auto` | 128K | 4,096 | 10 / 30 (ceiling) | avoid — routing varies |
 
-Every model accepts `tools`; the column is whether it uses them well. Override any value via `modelOverrides` in `~/.pi/agent/models.json`.
+Every model accepts `tools`; the column is whether it uses them well. `nemotron-vision` and `minimax-m3` may accept images — untested. Override any value via `modelOverrides` in `~/.pi/agent/models.json`.
 
 ## Sanity
 
