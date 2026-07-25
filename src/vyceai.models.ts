@@ -17,7 +17,7 @@ import type { ModelMeta } from "./types.js";
 export const STATIC_MODELS: Record<string, ModelMeta> = {
   auto: {
     id: "auto",
-    name: "Vyce AI — Auto (routing varies, no tool support)",
+    name: "Vyce AI — Auto (routing varies)",
     reasoning: false,
     input: ["text"],
     contextWindow: 128_000,

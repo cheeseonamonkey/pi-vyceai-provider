@@ -18,24 +18,35 @@ pi --model vyceai/deepseek-v4-flash
 
 All 14 models Vyce AI exposes, and exactly what's been verified vs. not — no cherry-picking:
 
-| Model | Context | Cost in/out ($/M) | Tool-call reliability |
-|---|---|---|---|
-| `claude-sonnet-5` | 200K | 3 / 15 | ✅ Tested — calls real tools correctly |
-| `nemotron-ultra-550b` | 128K | 1 / 2 | ✅ Tested — calls real tools correctly |
-| `deepseek-v4-flash` | 128K | 0.09 / 0.18 | ❌ Tested — hallucinates instead of calling tools |
-| `glm-5.2` | 128K | 0.924 / 2.904 | Untested — access denied on our key (plan-gated) |
-| `claude-sonnet-4-6` | 200K | 3 / 15 | Untested (same family as claude-sonnet-5) |
-| `claude-haiku-4-5` | 200K | 0.8 / 4 | Untested (same family) |
-| `claude-fable-5` | 200K | 10 / 30 | Untested — platform-disabled (503) |
-| `gpt-5.6-sol` | 128K | 5 / 30 | Untested — platform-disabled (503) |
-| `nemotron-vision` | 128K | 0.5 / 1.5 | Untested |
-| `gemini-3.1-flash-lite` | 1M | 0.25 / 1.5 | Untested |
-| `gemini-3.6-flash` | 1M | 1.5 / 7.5 | Untested — rate-limited during testing |
-| `minimax-m3` | 128K | 0.3 / 1.2 | Untested |
-| `mimo-v2.5-pro` | 1M | 1 / 1 | Untested |
-| `auto` | 128K | 10 / 30 (ceiling, not real) | Avoid — unpredictable routing, own 429 limit |
+| Model | Context* | Max out* | Input* | Cost in/out ($/M) | Tool-call reliability |
+|---|---|---|---|---|---|
+| `claude-sonnet-5` | 200K | 8,192 | text | 3 / 15 | ✅ Tested — calls real tools correctly |
+| `nemotron-ultra-550b` | 128K | 8,192 | text | 1 / 2 | ✅ Tested — calls real tools correctly |
+| `deepseek-v4-flash` | 128K | 8,192 | text | 0.09 / 0.18 | ❌ Tested — hallucinates instead of calling tools |
+| `claude-sonnet-4-6` | 200K | 8,192 | text | 3 / 15 | Untested (same family as claude-sonnet-5) |
+| `claude-haiku-4-5` | 200K | 8,192 | text | 0.8 / 4 | Untested (same family) |
+| `nemotron-vision` | 128K | 4,096 | text + image? | 0.5 / 1.5 | Untested |
+| `minimax-m3` | 128K | 4,096 | text + image? | 0.3 / 1.2 | Untested |
+| `gemini-3.1-flash-lite` | 1M | 8,192 | text | 0.25 / 1.5 | Untested |
+| `gemini-3.6-flash` | 1M | 8,192 | text | 1.5 / 7.5 | Untested — rate-limited during testing |
+| `mimo-v2.5-pro` | 1M | 8,192 | text | 1 / 1 | Untested |
+| `glm-5.2` | 128K | 8,192 | text | 0.924 / 2.904 | Untested — access denied on our key (plan-gated) |
+| `claude-fable-5` | 200K | 8,192 | text | 10 / 30 | Untested — platform-disabled (503) |
+| `gpt-5.6-sol` | 128K | 8,192 | text | 5 / 30 | Untested — platform-disabled (503) |
+| `auto` | 128K | 4,096 | text | 10 / 30 (ceiling, not real) | Avoid — unpredictable routing, own 429 limit |
 
-*Pricing is hand-transcribed from Vyce AI's pricing page — the API exposes no pricing endpoint, so nothing here is independently verified against a billing invoice.*
+Every model is registered as tool-capable — no model has ever rejected the `tools`
+field. The column above is whether a model *uses* tools competently once it has them.
+
+\* **Context, max-out, and image support are unknown.** `/v1/models` returns IDs only —
+no specs, no pricing. The values above are the defaults this extension registers with
+Pi, not measured Vyce limits, and upstream specs don't apply (Vyce is a proxy and can
+cap below the native model). Max-out in particular caps real requests, so if output
+truncates early, that's the first thing to override.
+
+Cost comes from vyceai.com's pricing page for 8 models and a third-party aggregator
+for the other 6 (`pricingSource` in `src/vyceai.models.ts` says which). Nothing is
+checked against an invoice. Override via `modelOverrides` in `~/.pi/agent/models.json`.
 
 ## Sanity
 
