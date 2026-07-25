@@ -1,0 +1,56 @@
+{
+  "name": "pi-vyceai-provider",
+  "version": "0.1.0",
+  "description": "Pi coding agent model provider extension for Vyce AI",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "KNOWN_ISSUES.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --passWithNoTests",
+    "smoke": "tsx test/smoke.ts",
+    "sync-models": "tsx scripts/syncModels.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.80.10",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_ORG/pi-vyceai-provider.git"
+  },
+  "keywords": [
+    "pi",
+    "pi-coding-agent",
+    "vyceai",
+    "provider",
+    "extension",
+    "llm"
+  ]
+}
