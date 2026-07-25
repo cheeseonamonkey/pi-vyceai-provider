@@ -4,15 +4,25 @@
 [![pi.dev](https://img.shields.io/badge/pi.dev-package-blue)](https://pi.dev/packages/pi-vyceai-provider)
 [![GitHub](https://img.shields.io/badge/GitHub-repo-black?logo=github)](https://github.com/cheeseonamonkey/pi-vyceai-provider)
 
-A [Pi](https://github.com/earendil-works/pi-mono) extension that registers [Vyce AI](https://vyceai.com) as a model provider — 14 models via OpenAI-compatible proxy.
+A [Pi](https://github.com/earendil-works/pi-mono) extension that registers [Vyce AI](https://vyceai.com) as a model provider.
 
-## Install
+## Setup
 
+Get your [VyceAI](https://vyceai.com) API token.
+
+Install the extension:
 ```bash
 pi install npm:pi-vyceai-provider
-export VYCEAI_API_KEY=sk-...
-pi --model vyceai/deepseek-v4-flash
 ```
+
+Then login inside of Pi:
+```
+/login
+```
+
+
+
+<br/>
 
 ## Models
 
