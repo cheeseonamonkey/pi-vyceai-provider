@@ -23,6 +23,13 @@ pi --model vyceai/deepseek-v4-flash
 | `gemini-3.1-flash-lite` | 1M | 0.25 / 1.5 | Untested |
 | `auto` | 128K | — | Avoid — unpredictable routing & 429s |
 
+## Sanity
+
+- **Strips `tools`** for models that break them — no more silent hallucinated file reads
+- **Context overflow auto-retry** — normalizes upstream errors so Pi recovers automatically
+- **Model warnings** — surfaces no-tools and unavailable-model alerts at selection time
+- **Live discovery** with static fallback — fetches live `/v1/models` on startup, falls back to shipped table if the API is unreachable
+
 Full table with context windows, availability, and all models → [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
 
 ## Development
