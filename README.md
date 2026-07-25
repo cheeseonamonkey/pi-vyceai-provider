@@ -27,10 +27,12 @@ pi --model vyceai/deepseek-v4-flash
 
 ## Sanity
 
-- **Strips `tools`** for models that break them — no more silent hallucinated file reads
-- **Context overflow auto-retry** — normalizes upstream errors so Pi recovers automatically
-- **Model warnings** — surfaces no-tools and unavailable-model alerts at selection time
-- **Live discovery** with static fallback — fetches live `/v1/models` on startup, falls back to shipped table if the API is unreachable
+- **Strips `tools`** for models that break them — the payload is stripped before it's sent, so the model can't silently hallucinate file/tool results instead of admitting it can't call one
+- **Context overflow auto-retry** — Vyce AI's overflow error text is normalized so Pi recognizes it as recoverable and auto-compacts + retries, instead of leaving you with a dead-end error message
+- **Model-select warnings** — picking a known no-tools or platform-disabled model shows a heads-up in the UI before you burn a request on it
+- **Live model discovery, static fallback** — on startup, fetches the current model list from `/v1/models` (5s timeout, single attempt — this happens on every `pi` invocation, so it can't block or retry). If that fails for any reason, it falls back to the shipped static table with no interruption. Note: this fallback itself is silent — it won't tell you discovery failed, it just quietly uses last-known-good data.
+
+Actual request-time errors (rate limits, overflow, bad models) are surfaced normally through Pi's own error display — only the *startup discovery* fallback above is silent.
 
 Full table with context windows, availability, and all models → [KNOWN_ISSUES.md](./KNOWN_ISSUES.md).
 
